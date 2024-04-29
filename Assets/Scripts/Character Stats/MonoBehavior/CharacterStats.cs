@@ -1,13 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterStats : MonoBehaviour
 {
+    public event Action<int, int> UpdateHealthBarOnAttack;
+    public CharacterData_SO templateData;
     public CharacterData_SO characterData;
     public AttackData_SO attackData;
+
     [HideInInspector]
     public bool isCritical;
+
+    void Awake()
+    {
+        if(templateData!=null)
+            characterData=Instantiate(templateData);
+    }
     #region Read form Data_SO
     public int MaxHealth 
     {
@@ -29,5 +39,34 @@ public class CharacterStats : MonoBehaviour
         get { if (characterData != null) return characterData.currentDefence; else return 0; }
         set { characterData.currentDefence = value; }
     }
+    #endregion
+
+    #region Character Combat
+
+    public void TakeDamage(CharacterStats attacker,CharacterStats defender)
+    {
+        int damage = Mathf.Max(attacker.CurrentDamage() - defender.CurrentDefence,1);
+        defender.CurrentHealth = Mathf.Max(defender.CurrentHealth - damage, 0);
+
+        if (attacker.isCritical)
+        {
+            defender.GetComponent<Animator>().SetTrigger("Hit");
+        }
+
+        UpdateHealthBarOnAttack?.Invoke(CurrentHealth, MaxHealth);
+    }
+
+    private int CurrentDamage()
+    {
+        float coreDamage=UnityEngine.Random.Range(attackData.minDanmge,attackData.maxDanmge);
+
+        if (isCritical)
+        {
+            coreDamage *= attackData.criticalMultiplier;
+            Debug.Log("±©»÷£¡" + coreDamage);
+        }
+        return (int)coreDamage;
+    }
+
     #endregion
 }

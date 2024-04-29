@@ -4,41 +4,49 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public enum EnemyStates { GUARD, PATROL, CHASE, DEAD }  //枚举怪物状态
-[RequireComponent(typeof(NavMeshAgent))]
-public class EnemyController : MonoBehaviour
+[RequireComponent(typeof(NavMeshAgent))]        //为挂载目标自动添加NavMeshAgent组件
+[RequireComponent(typeof(CharacterStats))]
+public class EnemyController : MonoBehaviour,IEndGameObserver
 {
     private EnemyStates enemyStates;    //怪物状态
     private NavMeshAgent agent;     //NavMeshAgent组件
     private Animator anim;      //动画
+    private Collider coll;
     [Header("Patrol State")]
     public float patrolRange;   //巡逻范围
-    [Header("Basic Settings")]  //为挂载目标自动添加NavMeshAgent组件
+    [Header("Basic Settings")]  
     public float sightRadius;   //仇恨半径
     public bool isGuard;    //是否为站桩敌人
     public float lookAtTime;    //观察时间
     private float remainLookAtTime;     //剩余观察时间
     private float lastAttackTime;       //攻击后摇
     private float speed;     //速度
-    private GameObject attackTarget;    //攻击目标
+    private Quaternion guardRotation;   //站桩朝向
+    protected GameObject attackTarget;    //攻击目标
     private Vector3 wayPoint;       //巡逻点
     private Vector3 guardPos;       //初始点
-    private CharacterStats characterStats;
+    protected CharacterStats characterStats;
     //用来转换动画
     bool isWalk;
     bool isChase;
     bool isFollow;
+    bool isDead;
+    bool playerDead;
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();   //获取组件
         anim = GetComponent<Animator>();    //获取组件
-        speed = agent.speed;    //获取初始速度
-        guardPos= transform.position;   //获取初始坐标
-        remainLookAtTime = lookAtTime;
         characterStats = GetComponent<CharacterStats>();
+        coll = GetComponent<Collider>();
+
+        speed = agent.speed;    //获取初始速度
+        guardPos= transform.position;   //获取站桩坐标
+        guardRotation = transform.rotation;
+        remainLookAtTime = lookAtTime;
     }
     void Start()
     {
-        characterStats.MaxHealth = 2;
+        //characterStats.MaxHealth = 2;
         if (isGuard)
         {
             enemyStates= EnemyStates.GUARD;
@@ -48,25 +56,46 @@ public class EnemyController : MonoBehaviour
             enemyStates= EnemyStates.PATROL;
             GetNewWayPoint();
         }
+        GameManager.Instance.AddObserver(this);
 
     }
+    void OnEnable()
+    {
+        //GameManager.Instance.AddObserver(this);
+    }
+    void OnDisable()
+    {
+        if (!GameManager.IsInitialized) return;
+        GameManager.Instance.RemoveObserver(this);
+    }
+
     void Update()
     {
-        SwitchStates();
-        SwitchAnimation();
-        lastAttackTime -= Time.deltaTime;
+        if (characterStats.CurrentHealth == 0)
+            isDead = true;
+        if (!playerDead)
+        {
+            SwitchStates();
+            SwitchAnimation();
+            lastAttackTime -= Time.deltaTime;
+        }
     }
     void SwitchAnimation() 
     {
-        //关联bool值
+        /*动画控制
+         * 关联bool值，通过传递bool到动画控制器来改变动画
+         */
         anim.SetBool("Walk", isWalk);
         anim.SetBool("Chase", isChase);
         anim.SetBool("Follow", isFollow);
-        anim.SetBool("Critical",characterStats.isCritical);
+        anim.SetBool("Critical",characterStats.isCritical);     //暴击
+        anim.SetBool("Death", isDead);
     }
     void SwitchStates()
     {
-        if (FoundPlayer())
+        if (isDead)
+            enemyStates = EnemyStates.DEAD;
+        else if (FoundPlayer())
         {
             enemyStates = EnemyStates.CHASE;    //怪物状态改为追击
             //Debug.Log("发现目标");        
@@ -76,6 +105,20 @@ public class EnemyController : MonoBehaviour
         switch (enemyStates)    //怪物状态控制
         {
             case EnemyStates.GUARD:
+                /*站桩模式
+                 */
+                isChase = false;
+                if (transform.position != guardPos)
+                {
+                    isWalk = true;
+                    agent.isStopped = false;
+                    agent.destination = guardPos;
+                    if (Vector3.SqrMagnitude(guardPos - transform.position) <= agent.stoppingDistance)
+                    {
+                        isWalk = false;
+                        transform.rotation = Quaternion.Lerp(transform.rotation, guardRotation, 0.01f);
+                    }
+                }
                 break;
             case EnemyStates.PATROL:
                 /*巡逻模式
@@ -140,6 +183,10 @@ public class EnemyController : MonoBehaviour
                 }
                 break;
             case EnemyStates.DEAD:
+                coll.enabled = false;
+                //agent.enabled = false;
+                agent.radius= 0;
+                Destroy(gameObject, 2f);
                 break;
         }
     }
@@ -204,4 +251,21 @@ public class EnemyController : MonoBehaviour
         
     }
 
+    void Hit()
+    {
+        if (attackTarget != null && transform.IsFacingTarget(attackTarget.transform))
+        {
+            var targetStats = attackTarget.GetComponent<CharacterStats>();
+            characterStats.TakeDamage(characterStats, targetStats);
+        }
+    }
+
+    public void EndNotify()
+    {
+        anim.SetBool("Win", true);
+        playerDead = true;
+        isChase= false;
+        isWalk= false;
+        attackTarget= null;
+    }
 }

@@ -16,6 +16,6 @@ MonoBehaviour:
   skillRange: 0
   coolDown: 1
   minDanmge: 2
-  maxDanmge: 4
+  maxDanmge: 8
   criticalMultiplier: 2
   criticalChance: 0.2

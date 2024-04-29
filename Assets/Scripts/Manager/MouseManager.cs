@@ -10,22 +10,27 @@ public class EventVector3 : UnityEvent<Vector3>
 
 }
 */
-public class MouseManager : MonoBehaviour
+public class MouseManager : Singleton<MouseManager>
 {
-    public static MouseManager Instance;
+    //public static MouseManager Instance;
     RaycastHit hitInfo;
     public Texture2D point, doorway, attack, target, arrow;
-    //public EventVector3 OnMouseClicked;
     public event Action<Vector3> OnMouseClicked;
     public event Action<GameObject> OnEnemyClicked;
 
-    void Awake()
-    {
-        if (Instance != null)
+    /*
+        void Awake()
         {
-            Destroy(gameObject);
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+            }
+            Instance = this;
         }
-        Instance = this;
+    */
+    protected override void Awake()
+    {
+        base.Awake();
     }
     void Update()
     {

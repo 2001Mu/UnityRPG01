@@ -72,9 +72,11 @@ GameObject:
   m_Component:
   - component: {fileID: 3338206024030389492}
   - component: {fileID: 3396366270632258544}
+  - component: {fileID: 2140196172219418307}
   - component: {fileID: 6035555216513754837}
   - component: {fileID: 7140465409240303629}
   - component: {fileID: 9184518690402737763}
+  - component: {fileID: 932142580141623349}
   m_Layer: 7
   m_Name: SlimePolyart
   m_TagString: Enemy
@@ -97,6 +99,7 @@ Transform:
   m_Children:
   - {fileID: 4748506267751259155}
   - {fileID: 3746923224651145125}
+  - {fileID: 3892406046643589289}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 185.465, z: 0}
 --- !u!95 &3396366270632258544
@@ -120,6 +123,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2140196172219418307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040482994210536897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86d7c05499ee857499874b6725b91465, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthUIPrefab: {fileID: 263239503469426433, guid: 1306ab003b8a6544d9d0042343b505da, type: 3}
+  barPoint: {fileID: 3892406046643589289}
+  alwaysVisible: 0
+  visibleTime: 3
 --- !u!195 &6035555216513754837
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -154,7 +173,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4941a951a010142a7cdaf61ac99e30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  patrolRange: 0
   sightRadius: 8
+  isGuard: 0
+  lookAtTime: 0
 --- !u!65 &9184518690402737763
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -176,6 +198,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &932142580141623349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040482994210536897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84c2e7f88319a7f42bec204430fd5865, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  templateData: {fileID: 0}
+  characterData: {fileID: 0}
+  attackData: {fileID: 0}
+  isCritical: 0
 --- !u!1 &2734211265516498381
 GameObject:
   m_ObjectHideFlags: 0
@@ -271,6 +309,37 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.3588662, y: 0.1749603, z: 0.000000059604645}
     m_Extent: {x: 0.62954795, y: 0.6683546, z: 0.4895594}
   m_DirtyAABB: 0
+--- !u!1 &3055554309313591369
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3892406046643589289}
+  m_Layer: 0
+  m_Name: HealthBar Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3892406046643589289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3055554309313591369}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.99886304, z: -0, w: -0.04767155}
+  m_LocalPosition: {x: -0.00000027404167, y: 1.5, z: -0.03324841}
+  m_LocalScale: {x: 1.0000001, y: 1, z: 1.0000001}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3338206024030389492}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4181803178302661662
 GameObject:
   m_ObjectHideFlags: 0
